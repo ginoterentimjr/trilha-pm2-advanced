@@ -12,7 +12,7 @@ Trilha de preparação de Gino Terentim para a certificação PM² Advanced da P
 - **Simulado:** banco de 292 questões em inglês; simulado completo (70 em 60 minutos) e minissimulado (20 em 17 minutos), com a distribuição oficial e correção comentada; registro do simulado preparatório oficial (exam.pm2.center).
 - **Diagramas:** os 52 blocos de conceito têm desenho próprio, com setas, rótulos e as informações que decidem a questão.
 - **Consulta rápida:** ao selecionar uma palavra ou sigla, um balão mostra a definição do glossário oficial (Apêndice G), a sigla por extenso ou o trecho do guia, com o botão Perguntar ao tutor.
-- **Tutor flutuante:** botão em todas as páginas abre a conversa com o tutor sem interromper a rodada; fica oculto durante o simulado.
+- **Tutor flutuante:** botão em todas as páginas abre a conversa com o tutor sem interromper a rodada; fica oculto durante o simulado; a conversa pode ser apagada ou exportada como documento formatado (.html) ou texto (.md).
 - **Tutor:** consulta o PM² Guide v3.1, os 33 templates v3.1 e as notas de mudança antes de responder e cita a página ou o template. Explica questões erradas, faz perguntas no estilo da prova e analisa os simulados.
 - **Consulta e Plano:** RASCI completo do guia e as duas cadências de estudo.
 

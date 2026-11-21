@@ -131,6 +131,7 @@ footer{padding:28px 0 40px;font-size:14px;color:var(--mut)}
 #gpop{position:absolute;z-index:62;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px rgba(27,21,18,.2);padding:12px 14px;font-size:14.5px;display:none}
 #gpop.on{display:block}#gpop .gq{font:600 16px Poppins,sans-serif;color:var(--or)}#gpop .gx{padding:2px 8px;min-height:0}
 #gpop .gs{margin:6px 0 4px}#gpop .gd{margin-top:8px}#gpop .def{margin:2px 0 4px;max-height:170px;overflow:auto;line-height:1.5}#gpop .src{font-size:12.5px;color:var(--mut)}
+.cbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.cbar:empty{display:none}#fbar{padding:10px 12px;background:var(--card);border-bottom:1px solid var(--line)}#fpan header button svg{width:19px;height:19px;display:block}
 @media print{#fab,#fpan,#gpop{display:none!important}}
 </style>
 </head>
@@ -1472,9 +1473,9 @@ async function vTutor(){const smp=await getSample();const c=tcfg();const ok=!!sm
  ${ok?"":`<div class="card" style="border-left:4px solid var(--or)"><h3>Falta conectar o tutor</h3><p>Nesta cópia hospedada no GitHub, o tutor usa a sua chave da API da Anthropic, guardada só neste navegador.</p><button id="gocx">Abrir Conexões</button></div>`}
  <div class="card"><div id="chat" class="chat"></div>
  <div class="row" style="margin:10px 0">${CHIPS.map((t,i)=>`<button class="ghost small" data-c="${i}">${esc(t)}</button>`).join("")}</div>
- <textarea id="pq2" rows="3" placeholder="Escreva sua pergunta"></textarea><div class="row sp" style="margin-top:8px"><button id="send">Enviar</button><button class="ghost" id="clr">Limpar conversa</button></div></div></section>`;
+ <textarea id="pq2" rows="3" placeholder="Escreva sua pergunta"></textarea><div class="row sp" style="margin-top:8px"><button id="send">Enviar</button><div class="row"><button class="ghost" id="exp">Exportar conversa</button><button class="ghost" id="clr">Apagar conversa</button></div></div><div id="tbar" class="cbar" style="margin-top:10px"></div></div></section>`;
  drawChat();const gx=$("#gocx");if(gx)gx.onclick=()=>{location.hash="#conexoes"};const go=()=>{const t=$("#pq2").value;$("#pq2").value="";perguntar(t)};$("#send").onclick=go;$("#pq2").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();go()}};
- V.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>perguntar(CHIPS[+b.dataset.c]));$("#clr").onclick=()=>{S.chat=[];save();drawChat()};
+ V.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>perguntar(CHIPS[+b.dataset.c]));$("#clr").onclick=()=>barDelete($("#tbar"));$("#exp").onclick=()=>barExport($("#tbar"));
  if(PEND){const p=PEND;PEND=null;perguntar(p)}}
 let PEND=null;
 function askQ(q,escolha){const L="ABCD";const opts=q.o.map((t,k)=>`${L[k]}. ${t}`).join("\n");
@@ -1561,9 +1562,33 @@ function gShow(q,r){const p=$("#gpop");if(!p)return;GQ=q;const R=gFind(q);
 function selCheck(){setTimeout(()=>{if(simAtivo())return;const sel=getSelection();const t=(sel&&sel.toString()||"").replace(/\s+/g," ").trim().replace(/^[^\wÀ-ÿ²]+|[^\wÀ-ÿ²)]+$/g,"");
  if(!t||t.length<2||t.length>60||t.split(" ").length>6)return;const a=sel.anchorNode&&(sel.anchorNode.nodeType===1?sel.anchorNode:sel.anchorNode.parentElement);
  if(!a||a.closest("#fpan,#gpop,textarea,input,select,nav,#chat"))return;const r=sel.getRangeAt(0).getBoundingClientRect();if(!r.width&&!r.height)return;gShow(t,r)},10)}
+
+// --- exportar e apagar a conversa ---
+const ICO_DL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>';
+const ICO_DEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6M14 11v6"/><path d="M6 7l1 13h10l1-13"/><path d="M9 7V4h6v3"/></svg>';
+const stamp=t=>{const d=t?new Date(t):new Date();return d.toLocaleDateString("pt-BR")+" "+hhmm(d.getTime())};
+const hoje=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+function chatMD(){const ms=S.chat||[];return `# Conversa com o Tutor PM²\n\nTrilha PM² Advanced · exportada em ${stamp()} · ${ms.length} mensagens\n\n---\n\n`+ms.map(m=>`**${m.r==="u"?"Você":"Tutor"}**${m.h?" · "+stamp(m.h):""}\n\n${String(m.v||m.t).trim()}\n`).join("\n---\n\n")+"\n"}
+function chatHTML(){const ms=S.chat||[];return `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="utf-8"><title>Conversa com o Tutor PM² · ${hoje()}</title><link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;600&display=swap" rel="stylesheet"><style>
+body{margin:0;background:#FAF5EC;color:#1B1512;font:16px/1.6 Lora,Georgia,serif}main{max-width:760px;margin:0 auto;padding:48px 28px}
+h1{font:600 30px Poppins,sans-serif;margin:0}h1 em{font-style:normal;color:#E5662C}.meta{font:500 12px Poppins,sans-serif;color:#6d6056;margin:8px 0 30px;letter-spacing:.08em}
+.m{border-radius:14px;padding:14px 18px;margin:0 0 14px;break-inside:avoid}.u{background:#f6dccb;margin-left:12%}.a{background:#fffdf8;border:1px solid #e7dccb;margin-right:12%}
+.who{font:600 12px Poppins,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#B04A1C;margin-bottom:4px}.who span{color:#6d6056;font-weight:500;text-transform:none;letter-spacing:0}.k{color:#B04A1C;font-weight:600}
+footer{margin-top:36px;font:500 12px Poppins,sans-serif;color:#6d6056;border-top:1px solid #e7dccb;padding-top:12px}@media print{body{background:#fff}main{padding:0 8px}}
+</style></head><body><main><h1>Conversa com o <em>Tutor PM²</em></h1><div class="meta">TRILHA PM² ADVANCED · EXPORTADA EM ${stamp()} · ${ms.length} MENSAGENS</div>${ms.map(m=>`<div class="m ${m.r}"><div class="who">${m.r==="u"?"Você":"Tutor"}${m.h?` <span>· ${stamp(m.h)}</span>`:""}</div><div>${md(m.v||m.t)}</div></div>`).join("")}<footer>Gino Terentim · Rethinking Learning · respostas baseadas no PM² Guide v3.1 e nos templates de artefatos v3.1</footer></main></body></html>`}
+function baixar(nome,tipo,conteudo){const b=new Blob([conteudo],{type:tipo+";charset=utf-8"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},2000)}
+function exportar(fmt){if(!(S.chat||[]).length)return false;if(fmt==="md")baixar(`Conversa Tutor PM2 ${hoje()}.md`,"text/markdown",chatMD());else baixar(`Conversa Tutor PM2 ${hoje()}.html`,"text/html",chatHTML());return true}
+function apagarChat(){S.chat=[];save();drawChat()}
+function barMsg(bar,t){bar.innerHTML=`<span class="small mut">${t}</span>`;clearTimeout(bar._t);bar._t=setTimeout(()=>{bar.innerHTML=""},2800)}
+function barExport(bar){if(!(S.chat||[]).length)return barMsg(bar,"Ainda não há mensagens para exportar.");
+ bar.innerHTML=`<span class="small">Exportar a conversa como:</span><button class="small" data-x="html">Documento formatado (.html)</button><button class="ghost small" data-x="md">Texto simples (.md)</button><button class="ghost small" data-x="no">Cancelar</button>`;
+ bar.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const f=b.dataset.x;if(f==="no"){bar.innerHTML="";return}exportar(f);barMsg(bar,f==="html"?"Download iniciado. Para PDF, abra o arquivo e use Imprimir.":"Download iniciado.")})}
+function barDelete(bar){if(!(S.chat||[]).length)return barMsg(bar,"A conversa já está vazia.");
+ bar.innerHTML=`<span class="small">Apagar toda a conversa? Não é possível desfazer.</span><button class="small" data-y="1">Apagar</button><button class="ghost small" data-y="0">Cancelar</button>`;
+ bar.querySelector('[data-y="1"]').onclick=()=>{apagarChat();barMsg(bar,"Conversa apagada.")};bar.querySelector('[data-y="0"]').onclick=()=>{bar.innerHTML=""}}
 function uiInit(){if($("#fab"))return;document.body.insertAdjacentHTML("beforeend",`<button id="fab" aria-label="Conversar com o tutor" title="Tutor PM²">${ICO_CHAT}</button>
-<section id="fpan" role="dialog" aria-label="Tutor PM²"><header><div class="av">PM²</div><div class="ttl"><b>Tutor PM²</b><span>consulta o guia oficial e cita a página</span></div><button id="ffull" title="Abrir em tela cheia" aria-label="Abrir em tela cheia">⤢</button><button id="fx" title="Fechar" aria-label="Fechar">✕</button></header><div id="fchat"></div><footer><textarea id="fin2" rows="1" placeholder="Escreva uma mensagem"></textarea><button id="fsend" aria-label="Enviar">${ICO_SEND}</button></footer></section><div id="gpop" role="dialog" aria-label="Consulta ao glossário"></div>`);
- $("#fab").onclick=()=>$("#fpan").classList.contains("on")?fClose():fOpen();$("#fx").onclick=fClose;$("#ffull").onclick=()=>{fClose();location.hash="#tutor"};
+<section id="fpan" role="dialog" aria-label="Tutor PM²"><header><div class="av">PM²</div><div class="ttl"><b>Tutor PM²</b><span>consulta o guia oficial</span></div><button id="fexp" title="Exportar a conversa" aria-label="Exportar a conversa">${ICO_DL}</button><button id="fdel" title="Apagar a conversa" aria-label="Apagar a conversa">${ICO_DEL}</button><button id="ffull" title="Abrir em tela cheia" aria-label="Abrir em tela cheia">⤢</button><button id="fx" title="Fechar" aria-label="Fechar">✕</button></header><div id="fbar" class="cbar"></div><div id="fchat"></div><footer><textarea id="fin2" rows="1" placeholder="Escreva uma mensagem"></textarea><button id="fsend" aria-label="Enviar">${ICO_SEND}</button></footer></section><div id="gpop" role="dialog" aria-label="Consulta ao glossário"></div>`);
+ $("#fab").onclick=()=>$("#fpan").classList.contains("on")?fClose():fOpen();$("#fx").onclick=fClose;$("#fexp").onclick=()=>barExport($("#fbar"));$("#fdel").onclick=()=>barDelete($("#fbar"));$("#ffull").onclick=()=>{fClose();location.hash="#tutor"};
  const send=()=>{const i=$("#fin2");const t=i.value;i.value="";i.style.height="";perguntar(t)};$("#fsend").onclick=send;
  $("#fin2").onkeydown=e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send()}};$("#fin2").oninput=e=>{e.target.style.height="auto";e.target.style.height=Math.min(120,e.target.scrollHeight)+"px"};
  addEventListener("hashchange",fabSync);fabSync();
