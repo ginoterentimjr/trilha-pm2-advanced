@@ -1577,12 +1577,15 @@ h1{font:600 30px Poppins,sans-serif;margin:0}h1 em{font-style:normal;color:#E566
 footer{margin-top:36px;font:500 12px Poppins,sans-serif;color:#6d6056;border-top:1px solid #e7dccb;padding-top:12px}@media print{body{background:#fff}main{padding:0 8px}}
 </style></head><body><main><h1>Conversa com o <em>Tutor PM²</em></h1><div class="meta">TRILHA PM² ADVANCED · EXPORTADA EM ${stamp()} · ${ms.length} MENSAGENS</div>${ms.map(m=>`<div class="m ${m.r}"><div class="who">${m.r==="u"?"Você":"Tutor"}${m.h?` <span>· ${stamp(m.h)}</span>`:""}</div><div>${md(m.v||m.t)}</div></div>`).join("")}<footer>Gino Terentim · Rethinking Learning · respostas baseadas no PM² Guide v3.1 e nos templates de artefatos v3.1</footer></main></body></html>`}
 function baixar(nome,tipo,conteudo){const b=new Blob([conteudo],{type:tipo+";charset=utf-8"});const u=URL.createObjectURL(b);const a=document.createElement("a");a.href=u;a.download=nome;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(u);a.remove()},2000)}
-function exportar(fmt){if(!(S.chat||[]).length)return false;if(fmt==="md")baixar(`Conversa Tutor PM2 ${hoje()}.md`,"text/markdown",chatMD());else baixar(`Conversa Tutor PM2 ${hoje()}.html`,"text/html",chatHTML());return true}
+let DLP=null;const getDL=()=>DLP||(DLP=(async()=>{if(typeof claude==="undefined"||!claude.use)return null;try{return await claude.use("downloads")}catch(e){return null}})());
+async function exportar(fmt){if(!(S.chat||[]).length)return "vazio";const nome=`Conversa Tutor PM2 ${hoje()}.${fmt}`,conteudo=fmt==="md"?chatMD():chatHTML();
+ const dl=await getDL();if(dl){try{await dl.save({filename:nome,data:conteudo});return "ok"}catch(e){return e&&e.code==="declined"?"cancelado":"falhou"}}
+ if(typeof claude!=="undefined")return "falhou";baixar(nome,fmt==="md"?"text/markdown":"text/html",conteudo);return "ok"}
 function apagarChat(){S.chat=[];save();drawChat()}
 function barMsg(bar,t){bar.innerHTML=`<span class="small mut">${t}</span>`;clearTimeout(bar._t);bar._t=setTimeout(()=>{bar.innerHTML=""},2800)}
 function barExport(bar){if(!(S.chat||[]).length)return barMsg(bar,"Ainda não há mensagens para exportar.");
  bar.innerHTML=`<span class="small">Exportar a conversa como:</span><button class="small" data-x="html">Documento formatado (.html)</button><button class="ghost small" data-x="md">Texto simples (.md)</button><button class="ghost small" data-x="no">Cancelar</button>`;
- bar.querySelectorAll("[data-x]").forEach(b=>b.onclick=()=>{const f=b.dataset.x;if(f==="no"){bar.innerHTML="";return}exportar(f);barMsg(bar,f==="html"?"Download iniciado. Para PDF, abra o arquivo e use Imprimir.":"Download iniciado.")})}
+ bar.querySelectorAll("[data-x]").forEach(b=>b.onclick=async()=>{const f=b.dataset.x;if(f==="no"){bar.innerHTML="";return}bar.innerHTML='<span class="small mut">Preparando o arquivo...</span>';const r=await exportar(f);barMsg(bar,r==="ok"?(f==="html"?"Arquivo salvo. Para PDF, abra o arquivo e use Imprimir.":"Arquivo salvo."):r==="cancelado"?"Exportação cancelada.":"Não foi possível exportar nesta versão do curso.")})}
 function barDelete(bar){if(!(S.chat||[]).length)return barMsg(bar,"A conversa já está vazia.");
  bar.innerHTML=`<span class="small">Apagar toda a conversa? Não é possível desfazer.</span><button class="small" data-y="1">Apagar</button><button class="ghost small" data-y="0">Cancelar</button>`;
  bar.querySelector('[data-y="1"]').onclick=()=>{apagarChat();barMsg(bar,"Conversa apagada.")};bar.querySelector('[data-y="0"]').onclick=()=>{bar.innerHTML=""}}
