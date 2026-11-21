@@ -7,6 +7,7 @@ Trilha de preparação de Gino Terentim para a certificação PM² Advanced da P
 ## O que a página oferece
 
 - **Trilha e estações:** oito estações (Conexão, Conceitos, Prática e Conclusão), com rodadas de até 25 questões por estação.
+- **Progresso:** gravado a cada resposta; rodada de estação e simulado interrompidos podem ser retomados do ponto em que pararam, com o tempo restante do simulado preservado.
 - **Revisão:** 149 flashcards em cinco caixas de repetição espaçada (1, 3, 7, 14 e 30 dias).
 - **Simulado:** banco de 292 questões em inglês; simulado completo (70 em 60 minutos) e minissimulado (20 em 17 minutos), com a distribuição oficial e correção comentada; registro do simulado preparatório oficial (exam.pm2.center).
 - **Tutor:** consulta o PM² Guide v3.1, os 33 templates v3.1 e as notas de mudança antes de responder e cita a página ou o template. Explica questões erradas, faz perguntas no estilo da prova e analisa os simulados.
